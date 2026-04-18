@@ -1,0 +1,50 @@
+import { StyleSheet } from 'react-native';
+import Theme from '../constants/Theme';
+
+export default StyleSheet.create({
+  container: { flex: 1, backgroundColor: Theme.colors.background },
+  scroll: { padding: Theme.spacing.lg, paddingBottom: 40 },
+  headerCard: {
+    backgroundColor: Theme.colors.dark, borderRadius: Theme.radius.lg,
+    padding: Theme.spacing.xl, marginBottom: Theme.spacing.lg,
+  },
+  docNum: { fontSize: 22, fontWeight: '800', color: '#fff', letterSpacing: -0.3 },
+  docDate: { fontSize: 13, color: Theme.colors.light, marginTop: 4 },
+  statusBadge: { alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 5, borderRadius: Theme.radius.pill, marginTop: 12 },
+  statusText: { fontSize: 11, fontWeight: '700', color: '#fff', textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionCard: {
+    backgroundColor: Theme.colors.surface, borderRadius: Theme.radius.md,
+    padding: Theme.spacing.lg, marginBottom: Theme.spacing.md, ...Theme.shadow.xs,
+  },
+  sectionTitle: { fontSize: 12, fontWeight: '700', color: Theme.colors.primary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: Theme.spacing.md },
+  clienteName: { fontSize: 16, fontWeight: '700', color: Theme.colors.text },
+  clienteInfo: { fontSize: 13, color: Theme.colors.muted, marginTop: 2, lineHeight: 20 },
+  tableHeader: { flexDirection: 'row', backgroundColor: Theme.colors.primaryLight, borderRadius: Theme.radius.sm, padding: 8, marginBottom: 4 },
+  tableHeaderText: { fontSize: 11, fontWeight: '700', color: Theme.colors.primary },
+  itemRow: { flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Theme.colors.border },
+  itemDesc: { fontSize: 13, color: Theme.colors.text },
+  itemQty: { fontSize: 13, color: Theme.colors.muted, textAlign: 'center' },
+  itemPrice: { fontSize: 13, color: Theme.colors.muted, textAlign: 'right' },
+  itemTotal: { fontSize: 13, fontWeight: '700', color: Theme.colors.text, textAlign: 'right' },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 5 },
+  totalLabel: { fontSize: 13, color: Theme.colors.muted },
+  totalValue: { fontSize: 13, fontWeight: '600', color: Theme.colors.text },
+  totalFinalRow: { flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, borderTopWidth: 1.5, borderTopColor: Theme.colors.primary, marginTop: 6 },
+  totalFinalLabel: { fontSize: 16, fontWeight: '700', color: Theme.colors.text },
+  totalFinalValue: { fontSize: 20, fontWeight: '800', color: Theme.colors.primary },
+  notesText: { fontSize: 13, color: Theme.colors.muted, lineHeight: 20 },
+  pdfButton: {
+    backgroundColor: Theme.colors.accent, borderRadius: Theme.radius.md,
+    paddingVertical: 15, alignItems: 'center', flexDirection: 'row',
+    justifyContent: 'center', gap: 8, ...Theme.shadow.md, marginBottom: Theme.spacing.md,
+  },
+  pdfButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
+  statusBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: Theme.radius.pill, borderWidth: 1.5 },
+  statusBtnText: { fontSize: 12, fontWeight: '700' },
+  deleteButton: {
+    backgroundColor: Theme.colors.errorLight, borderRadius: Theme.radius.md,
+    paddingVertical: 13, alignItems: 'center', borderWidth: 1, borderColor: Theme.colors.error,
+  },
+  deleteButtonText: { color: Theme.colors.error, fontSize: 14, fontWeight: '600' },
+});
