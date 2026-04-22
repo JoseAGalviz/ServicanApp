@@ -1,17 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl, SafeAreaView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getClientes, getCotizaciones } from '../services/storage';
+import { STATUS_COLOR } from '../utils/cotizacionHelpers';
 import Theme from '../constants/Theme';
 import styles from '../styles/HomeScreen.styles';
-
-const STATUS_COLOR = {
-  borrador:  Theme.colors.statusBorrador,
-  enviada:   Theme.colors.statusEnviada,
-  aprobada:  Theme.colors.statusAprobada,
-  rechazada: Theme.colors.statusRechazada,
-};
 
 export default function HomeScreen({ navigation }) {
   const [stats, setStats] = useState({ clientes: 0, cotizaciones: 0, aprobadas: 0 });
@@ -19,13 +13,17 @@ export default function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
-    const [clientes, cotizaciones] = await Promise.all([getClientes(), getCotizaciones()]);
-    setStats({
-      clientes: clientes.length,
-      cotizaciones: cotizaciones.length,
-      aprobadas: cotizaciones.filter(c => c.estado === 'aprobada').length,
-    });
-    setRecientes(cotizaciones.slice(-5).reverse());
+    try {
+      const [clientes, cotizaciones] = await Promise.all([getClientes(), getCotizaciones()]);
+      setStats({
+        clientes: clientes.length,
+        cotizaciones: cotizaciones.length,
+        aprobadas: cotizaciones.filter(c => c.estado === 'aprobada').length,
+      });
+      setRecientes(cotizaciones.slice(-5).reverse());
+    } catch {
+      Alert.alert('Error', 'No se pudo cargar el resumen.');
+    }
   }, []);
 
   useFocusEffect(useCallback(() => { loadData(); }, [loadData]));
@@ -109,7 +107,7 @@ export default function HomeScreen({ navigation }) {
                 <Text style={{ fontSize: 14, fontWeight: '700', color: Theme.colors.primary }}>
                   {cot.moneda} {Number(cot.total || 0).toFixed(2)}
                 </Text>
-                <View style={{ backgroundColor: STATUS_COLOR[cot.estado] || '#ccc', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginTop: 3 }}>
+                <View style={{ backgroundColor: STATUS_COLOR[cot.estado] || Theme.colors.light, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginTop: 3 }}>
                   <Text style={{ fontSize: 9, fontWeight: '700', color: '#fff', textTransform: 'uppercase' }}>{cot.estado}</Text>
                 </View>
               </View>

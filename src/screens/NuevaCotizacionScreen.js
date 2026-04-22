@@ -22,7 +22,6 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
   const [moneda, setMoneda] = useState(existing?.moneda || Config.MONEDA_DEFAULT);
   const [validezDias, setValidezDias] = useState(String(existing?.validezDias || Config.VALIDEZ_DEFAULT));
   const [descuento, setDescuento] = useState(String(existing?.descuento || '0'));
-  const [iva, setIva] = useState(String(existing?.iva || '0'));
   const [notas, setNotas] = useState(existing?.notas || '');
   const [items, setItems] = useState(existing?.items || []);
   const [showClienteModal, setShowClienteModal] = useState(false);
@@ -35,9 +34,8 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
   const calcTotals = () => {
     const subtotal = items.reduce((s, i) => s + (i.total || 0), 0);
     const desc = subtotal * ((parseFloat(descuento) || 0) / 100);
-    const base = subtotal - desc;
-    const ivaMonto = base * ((parseFloat(iva) || 0) / 100);
-    return { subtotal, total: base + ivaMonto };
+    const total = subtotal - desc;
+    return { subtotal, total };
   };
 
   const openAddItem = () => { setItemForm(emptyItem()); setEditingItemId(null); setShowItemModal(true); };
@@ -70,7 +68,6 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
       moneda,
       validezDias: parseInt(validezDias) || 30,
       descuento: parseFloat(descuento) || 0,
-      iva: parseFloat(iva) || 0,
       notas,
       items,
       subtotal,
@@ -82,7 +79,7 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
 
   const { subtotal, total } = calcTotals();
   const symbol = moneda === 'USD' ? '$' : 'Bs.';
-  const fmt = (n) => n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n) => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -127,10 +124,6 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
               <Text style={styles.label}>Descuento (%)</Text>
               <TextInput style={styles.input} value={descuento} onChangeText={setDescuento} keyboardType="decimal-pad" />
             </View>
-            <View style={styles.halfField}>
-              <Text style={styles.label}>IVA (%)</Text>
-              <TextInput style={styles.input} value={iva} onChangeText={setIva} keyboardType="decimal-pad" />
-            </View>
           </View>
         </View>
 
@@ -163,9 +156,6 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
           <View style={styles.totalRow}><Text style={styles.totalLabel}>Subtotal</Text><Text style={styles.totalValue}>{symbol} {fmt(subtotal)}</Text></View>
           {parseFloat(descuento) > 0 && (
             <View style={styles.totalRow}><Text style={styles.totalLabel}>Descuento ({descuento}%)</Text><Text style={styles.totalValue}>- {symbol} {fmt(subtotal * (parseFloat(descuento) / 100))}</Text></View>
-          )}
-          {parseFloat(iva) > 0 && (
-            <View style={styles.totalRow}><Text style={styles.totalLabel}>IVA ({iva}%)</Text><Text style={styles.totalValue}>{symbol} {fmt((subtotal - subtotal * (parseFloat(descuento) / 100)) * (parseFloat(iva) / 100))}</Text></View>
           )}
           <View style={styles.totalFinal}><Text style={styles.totalFinalLabel}>TOTAL</Text><Text style={styles.totalFinalValue}>{symbol} {fmt(total)}</Text></View>
         </View>

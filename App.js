@@ -1,9 +1,7 @@
 import React from 'react';
-import { StatusBar, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import FlashMessage from 'react-native-flash-message';
 
 import Theme from './src/constants/Theme';
 
@@ -51,13 +49,6 @@ export default function App() {
             options={{ ...HEADER_OPTS, headerShown: true, title: 'Detalle de Cotización' }}
           />
         </Stack.Navigator>
-        <FlashMessage
-          position="top"
-          floating
-          statusBarHeight={StatusBar.currentHeight}
-          style={{ marginTop: Platform.OS === 'android' ? 30 : 0 }}
-          titleStyle={{ paddingTop: 5 }}
-        />
       </NavigationContainer>
     </SafeAreaProvider>
   );

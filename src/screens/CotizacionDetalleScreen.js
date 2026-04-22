@@ -4,50 +4,57 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getCotizaciones, getClientes, deleteCotizacion, updateEstadoCotizacion } from '../services/storage';
 import { generarPdfCotizacion } from '../utils/pdfService';
+import { STATUS_COLOR, STATUS_LABEL, currencySymbol, fmt, fmtDate } from '../utils/cotizacionHelpers';
 import { Config } from '../constants/Config';
 import Theme from '../constants/Theme';
 import styles from '../styles/CotizacionDetalleScreen.styles';
-
-const STATUS_COLOR = {
-  borrador:  Theme.colors.statusBorrador,
-  enviada:   Theme.colors.statusEnviada,
-  aprobada:  Theme.colors.statusAprobada,
-  rechazada: Theme.colors.statusRechazada,
-};
-
-const STATUS_LABEL = { borrador: 'Borrador', enviada: 'Enviada', aprobada: 'Aprobada', rechazada: 'Rechazada' };
-
-const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
-const fmt = (n) => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function CotizacionDetalleScreen({ route, navigation }) {
   const { cotizacionId } = route.params;
   const [cotizacion, setCotizacion] = useState(null);
   const [cliente, setCliente] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [generatingPdf, setGeneratingPdf] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [cots, cls] = await Promise.all([getCotizaciones(), getClientes()]);
-    const cot = cots.find(c => c.id === cotizacionId);
-    const cl = cot ? cls.find(c => c.id === cot.clienteId) : null;
-    setCotizacion(cot || null);
-    setCliente(cl || { nombre: cot?.clienteNombre || 'Cliente' });
-    setLoading(false);
+    try {
+      const [cots, cls] = await Promise.all([getCotizaciones(), getClientes()]);
+      const cot = cots.find(c => c.id === cotizacionId);
+      const cl = cot ? cls.find(c => c.id === cot.clienteId) : null;
+      setCotizacion(cot || null);
+      setCliente(cl || { nombre: cot?.clienteNombre || 'Cliente' });
+    } catch {
+      Alert.alert('Error', 'No se pudo cargar la cotización.');
+    } finally {
+      setLoading(false);
+    }
   }, [cotizacionId]);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(load);
 
   const handleEstado = async (estado) => {
-    await updateEstadoCotizacion(cotizacionId, estado);
-    load();
+    try {
+      await updateEstadoCotizacion(cotizacionId, estado);
+      load();
+    } catch {
+      Alert.alert('Error', 'No se pudo actualizar el estado.');
+    }
   };
 
   const handleDelete = () => {
     Alert.alert('Eliminar', '¿Eliminar esta cotización?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: async () => { await deleteCotizacion(cotizacionId); navigation.goBack(); } },
+      {
+        text: 'Eliminar', style: 'destructive', onPress: async () => {
+          try {
+            await deleteCotizacion(cotizacionId);
+            navigation.goBack();
+          } catch {
+            Alert.alert('Error', 'No se pudo eliminar la cotización.');
+          }
+        },
+      },
     ]);
   };
 
@@ -67,10 +74,8 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color={Theme.colors.primary} /></View>;
   }
 
-  const symbol = cotizacion.moneda === 'USD' ? '$' : 'Bs.';
+  const symbol = currencySymbol(cotizacion.moneda);
   const descuentoMonto = cotizacion.subtotal * ((cotizacion.descuento || 0) / 100);
-  const base = cotizacion.subtotal - descuentoMonto;
-  const ivaMonto = base * ((cotizacion.iva || 0) / 100);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
@@ -78,7 +83,7 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
       <View style={styles.headerCard}>
         <Text style={styles.docNum}>{cotizacion.numero}</Text>
         <Text style={styles.docDate}>{fmtDate(cotizacion.fecha)}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: STATUS_COLOR[cotizacion.estado] || '#ccc' }]}>
+        <View style={[styles.statusBadge, { backgroundColor: STATUS_COLOR[cotizacion.estado] || Theme.colors.light }]}>
           <Text style={styles.statusText}>{STATUS_LABEL[cotizacion.estado] || cotizacion.estado}</Text>
         </View>
       </View>
@@ -122,7 +127,6 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
         <Text style={styles.sectionTitle}>Resumen Financiero</Text>
         <View style={styles.totalRow}><Text style={styles.totalLabel}>Subtotal</Text><Text style={styles.totalValue}>{symbol} {fmt(cotizacion.subtotal)}</Text></View>
         {cotizacion.descuento > 0 && <View style={styles.totalRow}><Text style={styles.totalLabel}>Descuento ({cotizacion.descuento}%)</Text><Text style={styles.totalValue}>- {symbol} {fmt(descuentoMonto)}</Text></View>}
-        {cotizacion.iva > 0 && <View style={styles.totalRow}><Text style={styles.totalLabel}>IVA ({cotizacion.iva}%)</Text><Text style={styles.totalValue}>{symbol} {fmt(ivaMonto)}</Text></View>}
         <View style={styles.totalFinalRow}>
           <Text style={styles.totalFinalLabel}>TOTAL {cotizacion.moneda}</Text>
           <Text style={styles.totalFinalValue}>{symbol} {fmt(cotizacion.total)}</Text>

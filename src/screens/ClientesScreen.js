@@ -11,8 +11,12 @@ export default function ClientesScreen({ navigation }) {
   const [search, setSearch] = useState('');
 
   const load = useCallback(async () => {
-    const data = await getClientes();
-    setClientes(data.sort((a, b) => a.nombre.localeCompare(b.nombre)));
+    try {
+      const data = await getClientes();
+      setClientes(data.sort((a, b) => a.nombre.localeCompare(b.nombre)));
+    } catch {
+      Alert.alert('Error', 'No se pudieron cargar los clientes.');
+    }
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -29,7 +33,16 @@ export default function ClientesScreen({ navigation }) {
       `¿Eliminar a ${cliente.nombre}? Esta acción no se puede deshacer.`,
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Eliminar', style: 'destructive', onPress: async () => { await deleteCliente(cliente.id); load(); } },
+        {
+          text: 'Eliminar', style: 'destructive', onPress: async () => {
+            try {
+              await deleteCliente(cliente.id);
+              load();
+            } catch {
+              Alert.alert('Error', 'No se pudo eliminar el cliente.');
+            }
+          },
+        },
       ]
     );
   };

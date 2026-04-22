@@ -1,35 +1,30 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { getCotizaciones } from '../services/storage';
+import { STATUS_COLOR, STATUS_LABEL, currencySymbol, fmt } from '../utils/cotizacionHelpers';
 import Theme from '../constants/Theme';
 import styles from '../styles/CotizacionesScreen.styles';
 
-const STATUS_COLOR = {
-  borrador:  Theme.colors.statusBorrador,
-  enviada:   Theme.colors.statusEnviada,
-  aprobada:  Theme.colors.statusAprobada,
-  rechazada: Theme.colors.statusRechazada,
-};
-
-const STATUS_LABEL = { borrador: 'Borrador', enviada: 'Enviada', aprobada: 'Aprobada', rechazada: 'Rechazada' };
-const CARD_BORDER  = { borrador: styles.cardBorrador, enviada: styles.cardEnviada, aprobada: styles.cardAprobada, rechazada: styles.cardRechazada };
+const CARD_BORDER = { borrador: styles.cardBorrador, enviada: styles.cardEnviada, aprobada: styles.cardAprobada, rechazada: styles.cardRechazada };
 const FILTROS = ['todas', 'borrador', 'enviada', 'aprobada', 'rechazada'];
 
 const fmtDate = (iso) => iso
   ? new Date(iso).toLocaleDateString('es-VE', { day: '2-digit', month: 'short', year: 'numeric' })
   : '';
 
-const fmtMoney = (n) => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
 export default function CotizacionesScreen({ navigation }) {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [filtro, setFiltro] = useState('todas');
 
   const load = useCallback(async () => {
-    const data = await getCotizaciones();
-    setCotizaciones(data.reverse());
+    try {
+      const data = await getCotizaciones();
+      setCotizaciones([...data].reverse());
+    } catch {
+      Alert.alert('Error', 'No se pudieron cargar las cotizaciones.');
+    }
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -37,7 +32,7 @@ export default function CotizacionesScreen({ navigation }) {
   const filtered = filtro === 'todas' ? cotizaciones : cotizaciones.filter(c => c.estado === filtro);
 
   const renderItem = ({ item }) => {
-    const symbol = item.moneda === 'USD' ? '$' : 'Bs.';
+    const symbol = currencySymbol(item.moneda);
     return (
       <TouchableOpacity
         style={[styles.card, CARD_BORDER[item.estado]]}
@@ -46,7 +41,7 @@ export default function CotizacionesScreen({ navigation }) {
       >
         <View style={styles.cardHeader}>
           <Text style={styles.cardNum}>{item.numero}</Text>
-          <View style={[styles.statusBadge, { backgroundColor: STATUS_COLOR[item.estado] || '#ccc' }]}>
+          <View style={[styles.statusBadge, { backgroundColor: STATUS_COLOR[item.estado] || Theme.colors.light }]}>
             <Text style={styles.statusText}>{STATUS_LABEL[item.estado] || item.estado}</Text>
           </View>
         </View>
@@ -67,7 +62,7 @@ export default function CotizacionesScreen({ navigation }) {
           </View>
           <View style={{ alignItems: 'flex-end' }}>
             <Text style={{ fontSize: 10, color: Theme.colors.muted, marginBottom: 1 }}>{item.moneda}</Text>
-            <Text style={styles.cardTotal}>{symbol} {fmtMoney(item.total)}</Text>
+            <Text style={styles.cardTotal}>{symbol} {fmt(item.total)}</Text>
           </View>
         </View>
       </TouchableOpacity>

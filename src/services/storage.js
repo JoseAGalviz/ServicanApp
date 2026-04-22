@@ -51,11 +51,6 @@ export const getCotizaciones = async () => {
   return raw ? JSON.parse(raw) : [];
 };
 
-export const getCotizacionesByCliente = async (clienteId) => {
-  const all = await getCotizaciones();
-  return all.filter(c => c.clienteId === clienteId);
-};
-
 const getNextNumero = async () => {
   const raw = await AsyncStorage.getItem(KEYS.COT_COUNTER);
   const n = raw ? parseInt(raw, 10) + 1 : 1;

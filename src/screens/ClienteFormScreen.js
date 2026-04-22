@@ -36,17 +36,30 @@ export default function ClienteFormScreen({ route, navigation }) {
       Alert.alert('Campo requerido', 'El nombre del cliente es obligatorio.');
       return;
     }
-    await saveCliente({
-      ...(existing || {}),
-      nombre, empresa, rif, telefono, email, direccion, notas,
-    });
-    navigation.goBack();
+    try {
+      await saveCliente({
+        ...(existing || {}),
+        nombre, empresa, rif, telefono, email, direccion, notas,
+      });
+      navigation.goBack();
+    } catch {
+      Alert.alert('Error', 'No se pudo guardar el cliente.');
+    }
   };
 
   const handleDelete = () => {
     Alert.alert('Eliminar', `¿Eliminar a ${nombre}?`, [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', style: 'destructive', onPress: async () => { await deleteCliente(existing.id); navigation.goBack(); } },
+      {
+        text: 'Eliminar', style: 'destructive', onPress: async () => {
+          try {
+            await deleteCliente(existing.id);
+            navigation.goBack();
+          } catch {
+            Alert.alert('Error', 'No se pudo eliminar el cliente.');
+          }
+        },
+      },
     ]);
   };
 

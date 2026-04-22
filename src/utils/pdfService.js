@@ -1,21 +1,13 @@
 import { getEmpresa } from '../services/storage';
 import { printAndSharePdf } from './pdfUtils';
+import { STATUS_COLOR, STATUS_LABEL, currencySymbol, fmt, fmtDate } from './cotizacionHelpers';
 
-const fmt = (n) =>
-  Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-const fmtDate = (iso) => {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
-
-const STATUS_LABEL = { borrador: 'Borrador', enviada: 'Enviada', aprobada: 'Aprobada', rechazada: 'Rechazada' };
-const STATUS_COLOR = { borrador: '#94A3B8', enviada: '#3B82F6', aprobada: '#10B981', rechazada: '#EF4444' };
+const MS_PER_DAY = 86400 * 1000;
 
 export const generarPdfCotizacion = async (cotizacion, cliente) => {
   const emp = await getEmpresa();
+  const symbol = currencySymbol(cotizacion.moneda);
   const moneda = cotizacion.moneda || 'USD';
-  const symbol = moneda === 'USD' ? '$' : 'Bs.';
 
   const itemsRows = (cotizacion.items || []).map((item, i) => `
     <tr style="background:${i % 2 === 0 ? '#F8FAFC' : '#FFFFFF'}">
@@ -28,11 +20,9 @@ export const generarPdfCotizacion = async (cotizacion, cliente) => {
   `).join('');
 
   const descuentoMonto = cotizacion.subtotal * ((cotizacion.descuento || 0) / 100);
-  const baseIva = cotizacion.subtotal - descuentoMonto;
-  const ivaMonto = baseIva * ((cotizacion.iva || 0) / 100);
 
   const validezDate = cotizacion.fecha
-    ? new Date(new Date(cotizacion.fecha).getTime() + (cotizacion.validezDias || 30) * 86400000)
+    ? new Date(new Date(cotizacion.fecha).getTime() + (cotizacion.validezDias || 30) * MS_PER_DAY)
     : null;
 
   const html = `
@@ -151,7 +141,6 @@ export const generarPdfCotizacion = async (cotizacion, cliente) => {
     <div class="totals-box">
       <div class="totals-row"><span>Subtotal</span><span>${symbol} ${fmt(cotizacion.subtotal)}</span></div>
       ${cotizacion.descuento > 0 ? `<div class="totals-row"><span>Descuento (${cotizacion.descuento}%)</span><span>- ${symbol} ${fmt(descuentoMonto)}</span></div>` : ''}
-      ${cotizacion.iva > 0 ? `<div class="totals-row"><span>IVA (${cotizacion.iva}%)</span><span>${symbol} ${fmt(ivaMonto)}</span></div>` : ''}
       <div class="total-final"><span>TOTAL ${moneda}</span><span>${symbol} ${fmt(cotizacion.total)}</span></div>
     </div>
   </div>

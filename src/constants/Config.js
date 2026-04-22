@@ -1,6 +1,5 @@
 export const Config = {
   APP_NAME: 'Servican',
-  IVA: 0.16,
   MONEDA_DEFAULT: 'USD',
   VALIDEZ_DEFAULT: 30,
   STORAGE_KEYS: {
