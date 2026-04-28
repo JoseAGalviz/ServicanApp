@@ -31,7 +31,7 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
     }
   }, [cotizacionId]);
 
-  useFocusEffect(load);
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const handleEstado = async (estado) => {
     try {

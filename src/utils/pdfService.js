@@ -152,8 +152,6 @@ export const generarPdfCotizacion = async (cotizacion, cliente) => {
     <ul>
       <li>Esta cotización tiene validez de ${cotizacion.validezDias || 30} días a partir de la fecha de emisión.</li>
       <li>Precios expresados en ${moneda}.</li>
-      <li>Forma de pago: 50% al inicio, 50% a la entrega del servicio.</li>
-      <li>Garantía: 12 meses sobre equipos instalados.</li>
     </ul>
   </div>
 

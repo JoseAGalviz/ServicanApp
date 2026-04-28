@@ -14,7 +14,11 @@ export const STATUS_LABEL = {
   rechazada: 'Rechazada',
 };
 
-export const currencySymbol = (moneda) => moneda === 'USD' ? '$' : 'Bs.';
+export const currencySymbol = (moneda) => {
+  if (moneda === 'USD') return '$';
+  if (moneda === 'COP') return 'Col$';
+  return 'Bs.';
+};
 
 export const fmt = (n) =>
   Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
