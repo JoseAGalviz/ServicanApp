@@ -89,3 +89,15 @@ export const updateEstadoCotizacion = async (id, estado) => {
   }
   return null;
 };
+
+export const registrarPago = async (id, { monedaPago, montoPago, fechaPago, observacionPago }) => {
+  const list = await getCotizaciones();
+  const idx = list.findIndex(c => c.id === id);
+  if (idx >= 0) {
+    list[idx].estado = 'pagada';
+    list[idx].pago = { monedaPago, montoPago, fechaPago, observacionPago, registradoEn: new Date().toISOString() };
+    await AsyncStorage.setItem(KEYS.COTIZACIONES, JSON.stringify(list));
+    return list[idx];
+  }
+  return null;
+};

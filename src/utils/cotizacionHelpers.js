@@ -5,6 +5,7 @@ export const STATUS_COLOR = {
   enviada:   Theme.colors.statusEnviada,
   aprobada:  Theme.colors.statusAprobada,
   rechazada: Theme.colors.statusRechazada,
+  pagada:    Theme.colors.successDark,
 };
 
 export const STATUS_LABEL = {
@@ -12,6 +13,7 @@ export const STATUS_LABEL = {
   enviada:   'Enviada',
   aprobada:  'Aprobada',
   rechazada: 'Rechazada',
+  pagada:    'Pagada',
 };
 
 export const currencySymbol = (moneda) => {

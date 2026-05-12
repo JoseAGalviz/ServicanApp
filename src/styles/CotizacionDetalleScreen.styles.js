@@ -47,4 +47,52 @@ export default StyleSheet.create({
     paddingVertical: 13, alignItems: 'center', borderWidth: 1, borderColor: Theme.colors.error,
   },
   deleteButtonText: { color: Theme.colors.error, fontSize: 14, fontWeight: '600' },
+
+  // Modal pago
+  modalOverlay: {
+    flex: 1, backgroundColor: Theme.colors.overlay,
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    backgroundColor: Theme.colors.surface, borderTopLeftRadius: Theme.radius.xl,
+    borderTopRightRadius: Theme.radius.xl, padding: Theme.spacing.xl,
+    paddingBottom: 36,
+  },
+  modalTitle: {
+    fontSize: 18, fontWeight: '700', color: Theme.colors.text,
+    marginBottom: Theme.spacing.lg, textAlign: 'center',
+  },
+  modalLabel: {
+    fontSize: 12, fontWeight: '700', color: Theme.colors.muted,
+    textTransform: 'uppercase', letterSpacing: 0.4,
+    marginBottom: Theme.spacing.xs, marginTop: Theme.spacing.md,
+  },
+  modalInput: {
+    backgroundColor: Theme.colors.surfaceAlt, borderWidth: 1,
+    borderColor: Theme.colors.border, borderRadius: Theme.radius.md,
+    paddingHorizontal: Theme.spacing.md, paddingVertical: 10,
+    fontSize: 14, color: Theme.colors.text,
+  },
+  modalTextarea: { height: 72, textAlignVertical: 'top', paddingTop: 10 },
+  monedaRow: { flexDirection: 'row', gap: 8 },
+  monedaBtn: {
+    flex: 1, paddingVertical: 10, borderRadius: Theme.radius.md,
+    borderWidth: 1.5, borderColor: Theme.colors.border, alignItems: 'center',
+  },
+  monedaBtnActive: { borderColor: Theme.colors.primary, backgroundColor: Theme.colors.primaryLight },
+  monedaBtnText: { fontSize: 13, fontWeight: '700', color: Theme.colors.muted },
+  monedaBtnTextActive: { color: Theme.colors.primary },
+  modalActions: {
+    flexDirection: 'row', gap: 10, marginTop: Theme.spacing.xl,
+  },
+  modalCancelBtn: {
+    flex: 1, paddingVertical: 13, borderRadius: Theme.radius.md,
+    borderWidth: 1, borderColor: Theme.colors.border, alignItems: 'center',
+  },
+  modalCancelText: { fontSize: 14, fontWeight: '600', color: Theme.colors.muted },
+  modalConfirmBtn: {
+    flex: 2, paddingVertical: 13, borderRadius: Theme.radius.md,
+    backgroundColor: Theme.colors.successDark, alignItems: 'center',
+  },
+  modalConfirmText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 });

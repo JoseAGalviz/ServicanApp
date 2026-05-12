@@ -23,5 +23,6 @@ export const Config = {
     direccion: 'Caracas, Venezuela',
     slogan:    'Seguridad y Servicios Profesionales de CCTV',
   },
-  ESTADOS_COTIZACION: ['borrador', 'enviada', 'aprobada', 'rechazada'],
+  ESTADOS_COTIZACION: ['borrador', 'enviada', 'aprobada', 'rechazada', 'pagada'],
+  MONEDAS: ['USD', 'VES', 'COP'],
 };
