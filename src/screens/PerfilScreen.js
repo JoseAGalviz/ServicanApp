@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, SafeAreaView, Alert, KeyboardAvoidingView, Platform,
+  SafeAreaView, Alert,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
 import { getEmpresa, saveEmpresa } from '../services/storage';
 import Theme from '../constants/Theme';
@@ -66,72 +67,68 @@ export default function PerfilScreen() {
   };
 
   const handleCancel = async () => {
-    try {
-      const data = await getEmpresa();
-      setEmpresa(data);
-    } catch { /* keep current state */ }
+    try { const data = await getEmpresa(); setEmpresa(data); } catch { /* keep state */ }
     setEditMode(false);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-
-          <View style={styles.headerCard}>
-            <View style={styles.avatar}>
-              <Ionicons name="shield-checkmark" size={30} color={Theme.colors.accent} />
-            </View>
-            <Text style={styles.companyName}>{empresa.nombre || 'Mi Empresa'}</Text>
-            {empresa.slogan ? <Text style={styles.slogan}>{empresa.slogan}</Text> : null}
+      <KeyboardAwareScrollView
+        contentContainerStyle={[styles.scroll, { paddingBottom: 160 }]}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid
+        extraScrollHeight={24}
+      >
+        <View style={styles.headerCard}>
+          <View style={styles.avatar}>
+            <Ionicons name="shield-checkmark" size={30} color={Theme.colors.accent} />
           </View>
+          <Text style={styles.companyName}>{empresa.nombre || 'Mi Empresa'}</Text>
+          {empresa.slogan ? <Text style={styles.slogan}>{empresa.slogan}</Text> : null}
+        </View>
 
-          {editMode ? (
-            <View style={styles.card}>
-              <Text style={styles.sectionTitleEdit}>Editar Datos de Empresa</Text>
-              <Field label="Nombre de Empresa *" value={empresa.nombre}    onChangeText={set('nombre')}    placeholder="Ej: Servican C.A." />
-              <Field label="Slogan / Descripción" value={empresa.slogan}   onChangeText={set('slogan')}    placeholder="Ej: Seguridad y CCTV Profesional" />
-              <Field label="RIF / NIF"            value={empresa.rif}      onChangeText={set('rif')}       placeholder="J-XXXXXXXXX-X" />
-              <Field label="Teléfono"             value={empresa.telefono} onChangeText={set('telefono')}  placeholder="+58 XXX XXX XXXX" keyboard="phone-pad" />
-              <Field label="Correo Electrónico"   value={empresa.email}    onChangeText={set('email')}     placeholder="ventas@miempresa.com" keyboard="email-address" />
-              <Field label="Dirección"            value={empresa.direccion} onChangeText={set('direccion')} placeholder="Ciudad, Estado, País" multiline />
-
-              <View style={styles.actionRow}>
-                <TouchableOpacity onPress={handleCancel} style={styles.cancelBtn}>
-                  <Text style={styles.cancelBtnText}>Cancelar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-                  <Text style={styles.saveBtnText}>Guardar</Text>
-                </TouchableOpacity>
-              </View>
+        {editMode ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionTitleEdit}>Editar Datos de Empresa</Text>
+            <Field label="Nombre de Empresa *"  value={empresa.nombre}    onChangeText={set('nombre')}    placeholder="Ej: Servican C.A."               />
+            <Field label="Slogan / Descripción" value={empresa.slogan}    onChangeText={set('slogan')}    placeholder="Ej: Seguridad y CCTV Profesional" />
+            <Field label="RIF / NIF"             value={empresa.rif}      onChangeText={set('rif')}       placeholder="J-XXXXXXXXX-X"                   />
+            <Field label="Teléfono"              value={empresa.telefono} onChangeText={set('telefono')}  placeholder="+58 XXX XXX XXXX" keyboard="phone-pad"    />
+            <Field label="Correo Electrónico"    value={empresa.email}    onChangeText={set('email')}     placeholder="ventas@miempresa.com" keyboard="email-address" />
+            <Field label="Dirección"             value={empresa.direccion} onChangeText={set('direccion')} placeholder="Ciudad, Estado, País" multiline   />
+            <View style={styles.actionRow}>
+              <TouchableOpacity onPress={handleCancel} style={styles.cancelBtn}>
+                <Text style={styles.cancelBtnText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+                <Text style={styles.saveBtnText}>Guardar</Text>
+              </TouchableOpacity>
             </View>
-          ) : (
-            <>
-              <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.sectionTitle}>Datos de la Empresa</Text>
-                  <TouchableOpacity onPress={() => setEditMode(true)} style={styles.editButton}>
-                    <Ionicons name="create-outline" size={14} color={Theme.colors.primary} />
-                    <Text style={styles.editButtonText}>Editar</Text>
-                  </TouchableOpacity>
-                </View>
-                <InfoRow icon="card-outline"     label="RIF"       value={empresa.rif} />
-                <InfoRow icon="call-outline"     label="Teléfono"  value={empresa.telefono} />
-                <InfoRow icon="mail-outline"     label="Email"     value={empresa.email} />
-                <InfoRow icon="location-outline" label="Dirección" value={empresa.direccion} />
+          </View>
+        ) : (
+          <>
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.sectionTitle}>Datos de la Empresa</Text>
+                <TouchableOpacity onPress={() => setEditMode(true)} style={styles.editButton}>
+                  <Ionicons name="create-outline" size={14} color={Theme.colors.primary} />
+                  <Text style={styles.editButtonText}>Editar</Text>
+                </TouchableOpacity>
               </View>
-
-              <View style={styles.cardLast}>
-                <Text style={styles.sectionTitle}>Aplicación</Text>
-                <InfoRow icon="phone-portrait-outline"   label="Versión"        value="1.0.0" />
-                <InfoRow icon="server-outline"           label="Almacenamiento" value="Local (sin conexión)" />
-                <InfoRow icon="document-text-outline"    label="PDF"            value="Los datos de empresa se usan en cada cotización" />
-              </View>
-            </>
-          )}
-
-        </ScrollView>
-      </KeyboardAvoidingView>
+              <InfoRow icon="card-outline"     label="RIF"       value={empresa.rif} />
+              <InfoRow icon="call-outline"     label="Teléfono"  value={empresa.telefono} />
+              <InfoRow icon="mail-outline"     label="Email"     value={empresa.email} />
+              <InfoRow icon="location-outline" label="Dirección" value={empresa.direccion} />
+            </View>
+            <View style={styles.cardLast}>
+              <Text style={styles.sectionTitle}>Aplicación</Text>
+              <InfoRow icon="phone-portrait-outline" label="Versión"        value="1.0.0" />
+              <InfoRow icon="server-outline"         label="Almacenamiento" value="Local (sin conexión)" />
+              <InfoRow icon="document-text-outline"  label="PDF"            value="Los datos de empresa se usan en cada cotización" />
+            </View>
+          </>
+        )}
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

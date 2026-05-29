@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView, Modal,
+  View, Text, TextInput, TouchableOpacity, Modal,
   Alert, KeyboardAvoidingView, Platform, FlatList, Pressable,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
 import { getClientes, saveCotizacion } from '../services/storage';
 import { Config } from '../constants/Config';
@@ -16,23 +17,23 @@ const emptyItem = () => ({ id: Date.now().toString(), descripcion: '', cantidad:
 export default function NuevaCotizacionScreen({ route, navigation }) {
   const existing = route.params?.cotizacion;
 
-  const [clientes, setClientes] = useState([]);
-  const [clienteId, setClienteId] = useState(existing?.clienteId || '');
+  const [clientes,      setClientes]      = useState([]);
+  const [clienteId,     setClienteId]     = useState(existing?.clienteId     || '');
   const [clienteNombre, setClienteNombre] = useState(existing?.clienteNombre || '');
-  const [moneda, setMoneda] = useState(existing?.moneda || Config.MONEDA_DEFAULT);
-  const [validezDias, setValidezDias] = useState(String(existing?.validezDias || Config.VALIDEZ_DEFAULT));
-  const [notas, setNotas] = useState(existing?.notas || '');
-  const [items, setItems] = useState(existing?.items || []);
+  const [moneda,        setMoneda]        = useState(existing?.moneda        || Config.MONEDA_DEFAULT);
+  const [validezDias,   setValidezDias]   = useState(String(existing?.validezDias || Config.VALIDEZ_DEFAULT));
+  const [notas,         setNotas]         = useState(existing?.notas         || '');
+  const [items,         setItems]         = useState(existing?.items         || []);
   const [showClienteModal, setShowClienteModal] = useState(false);
-  const [showItemModal, setShowItemModal] = useState(false);
-  const [itemForm, setItemForm] = useState(emptyItem());
+  const [showItemModal,    setShowItemModal]    = useState(false);
+  const [itemForm,      setItemForm]      = useState(emptyItem());
   const [editingItemId, setEditingItemId] = useState(null);
 
   useEffect(() => { getClientes().then(setClientes); }, []);
 
   const calcTotal = () => items.reduce((s, i) => s + (i.total || 0), 0);
 
-  const openAddItem = () => { setItemForm(emptyItem()); setEditingItemId(null); setShowItemModal(true); };
+  const openAddItem  = () => { setItemForm(emptyItem()); setEditingItemId(null); setShowItemModal(true); };
   const openEditItem = (item) => {
     setItemForm({ ...item, cantidad: String(item.cantidad), precioUnitario: String(item.precioUnitario) });
     setEditingItemId(item.id);
@@ -41,10 +42,10 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
 
   const handleSaveItem = () => {
     if (!itemForm.descripcion.trim()) { Alert.alert('Error', 'La descripción es requerida.'); return; }
-    const cant = parseFloat(itemForm.cantidad) || 0;
+    const cant  = parseFloat(itemForm.cantidad)      || 0;
     const precio = parseFloat(itemForm.precioUnitario) || 0;
-    const total = cant * precio;
-    const saved = { ...itemForm, cantidad: cant, precioUnitario: precio, total };
+    const total  = cant * precio;
+    const saved  = { ...itemForm, cantidad: cant, precioUnitario: precio, total };
     if (editingItemId) {
       setItems(prev => prev.map(i => i.id === editingItemId ? saved : i));
     } else {
@@ -61,28 +62,27 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
     const total = calcTotal();
     await saveCotizacion({
       ...(existing || {}),
-      clienteId,
-      clienteNombre,
-      moneda,
+      clienteId, clienteNombre, moneda,
       validezDias: parseInt(validezDias) || 30,
-      descuento: 0,
-      notas,
-      items,
-      subtotal: total,
-      total,
-      estado,
+      descuento: 0, notas, items,
+      subtotal: total, total, estado,
     });
     navigation.goBack();
   };
 
-  const total = calcTotal();
+  const total  = calcTotal();
   const symbol = moneda === 'USD' ? '$' : moneda === 'COP' ? 'Col$' : 'Bs.';
-  const fmt = (n) => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt    = (n) => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-
+    <View style={{ flex: 1 }}>
+      <KeyboardAwareScrollView
+        style={styles.container}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 160 }]}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid
+        extraScrollHeight={24}
+      >
         {/* Cliente */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Cliente</Text>
@@ -173,8 +173,7 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
             <Text style={styles.actionBtnSolidText}>Enviar</Text>
           </TouchableOpacity>
         </View>
-
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       {/* Modal: Seleccionar Cliente */}
       <Modal visible={showClienteModal} transparent animationType="slide" onRequestClose={() => setShowClienteModal(false)}>
@@ -204,52 +203,54 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
 
       {/* Modal: Agregar / Editar Ítem */}
       <Modal visible={showItemModal} transparent animationType="slide" onRequestClose={() => setShowItemModal(false)}>
-        <Pressable style={styles.modalOverlay} onPress={() => setShowItemModal(false)}>
-          <Pressable style={styles.modalContent} onPress={() => {}}>
-            <Text style={styles.modalTitle}>{editingItemId ? 'Editar Ítem' : 'Nuevo Ítem'}</Text>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Descripción *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Descripción del servicio / producto"
-                placeholderTextColor={Theme.colors.light}
-                value={itemForm.descripcion}
-                onChangeText={v => setItemForm(f => ({ ...f, descripcion: v }))}
-              />
-            </View>
-            <View style={styles.row}>
-              <View style={styles.halfField}>
-                <Text style={styles.label}>Cantidad</Text>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <Pressable style={styles.modalOverlay} onPress={() => setShowItemModal(false)}>
+            <Pressable style={styles.modalContent} onPress={() => {}}>
+              <Text style={styles.modalTitle}>{editingItemId ? 'Editar Ítem' : 'Nuevo Ítem'}</Text>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Descripción *</Text>
                 <TextInput
                   style={styles.input}
-                  keyboardType="decimal-pad"
-                  value={itemForm.cantidad}
-                  onChangeText={v => setItemForm(f => ({ ...f, cantidad: v }))}
-                />
-              </View>
-              <View style={styles.halfField}>
-                <Text style={styles.label}>Precio ({symbol})</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="decimal-pad"
-                  placeholder="0.00"
+                  placeholder="Descripción del servicio / producto"
                   placeholderTextColor={Theme.colors.light}
-                  value={itemForm.precioUnitario}
-                  onChangeText={v => setItemForm(f => ({ ...f, precioUnitario: v }))}
+                  value={itemForm.descripcion}
+                  onChangeText={v => setItemForm(f => ({ ...f, descripcion: v }))}
                 />
               </View>
-            </View>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowItemModal(false)}>
-                <Text style={styles.modalCancelText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalAddBtn} onPress={handleSaveItem}>
-                <Text style={styles.modalAddText}>{editingItemId ? 'Guardar' : 'Agregar'}</Text>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.row}>
+                <View style={styles.halfField}>
+                  <Text style={styles.label}>Cantidad</Text>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="decimal-pad"
+                    value={itemForm.cantidad}
+                    onChangeText={v => setItemForm(f => ({ ...f, cantidad: v }))}
+                  />
+                </View>
+                <View style={styles.halfField}>
+                  <Text style={styles.label}>Precio ({symbol})</Text>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="decimal-pad"
+                    placeholder="0.00"
+                    placeholderTextColor={Theme.colors.light}
+                    value={itemForm.precioUnitario}
+                    onChangeText={v => setItemForm(f => ({ ...f, precioUnitario: v }))}
+                  />
+                </View>
+              </View>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowItemModal(false)}>
+                  <Text style={styles.modalCancelText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalAddBtn} onPress={handleSaveItem}>
+                  <Text style={styles.modalAddText}>{editingItemId ? 'Guardar' : 'Agregar'}</Text>
+                </TouchableOpacity>
+              </View>
+            </Pressable>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { saveCliente, deleteCliente } from '../services/storage';
 import styles from '../styles/ClienteFormScreen.styles';
 
@@ -37,10 +38,7 @@ export default function ClienteFormScreen({ route, navigation }) {
       return;
     }
     try {
-      await saveCliente({
-        ...(existing || {}),
-        nombre, empresa, rif, telefono, email, direccion, notas,
-      });
+      await saveCliente({ ...(existing || {}), nombre, empresa, rif, telefono, email, direccion, notas });
       navigation.goBack();
     } catch {
       Alert.alert('Error', 'No se pudo guardar el cliente.');
@@ -50,40 +48,37 @@ export default function ClienteFormScreen({ route, navigation }) {
   const handleDelete = () => {
     Alert.alert('Eliminar', `¿Eliminar a ${nombre}?`, [
       { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar', style: 'destructive', onPress: async () => {
-          try {
-            await deleteCliente(existing.id);
-            navigation.goBack();
-          } catch {
-            Alert.alert('Error', 'No se pudo eliminar el cliente.');
-          }
-        },
-      },
+      { text: 'Eliminar', style: 'destructive', onPress: async () => {
+        try { await deleteCliente(existing.id); navigation.goBack(); }
+        catch { Alert.alert('Error', 'No se pudo eliminar el cliente.'); }
+      }},
     ]);
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <Field label="Nombre *"             value={nombre}    onChangeText={setNombre}    placeholder="Nombre completo" />
-        <Field label="Empresa"              value={empresa}   onChangeText={setEmpresa}   placeholder="Razón social" />
-        <Field label="RIF / NIF"            value={rif}       onChangeText={setRif}       placeholder="J-XXXXXXXXX-X" />
-        <Field label="Teléfono"             value={telefono}  onChangeText={setTelefono}  placeholder="+58 XXX XXX XXXX" keyboard="phone-pad" />
-        <Field label="Correo Electrónico"   value={email}     onChangeText={setEmail}     placeholder="correo@empresa.com" keyboard="email-address" />
-        <Field label="Dirección"            value={direccion} onChangeText={setDireccion} placeholder="Dirección" multiline />
-        <Field label="Notas"                value={notas}     onChangeText={setNotas}     placeholder="Notas adicionales..." multiline />
+    <KeyboardAwareScrollView
+      style={styles.container}
+      contentContainerStyle={[styles.scroll, { paddingBottom: 160 }]}
+      keyboardShouldPersistTaps="handled"
+      enableOnAndroid
+      extraScrollHeight={24}
+    >
+      <Field label="Nombre *"           value={nombre}    onChangeText={setNombre}    placeholder="Nombre completo"    />
+      <Field label="Empresa"            value={empresa}   onChangeText={setEmpresa}   placeholder="Razón social"       />
+      <Field label="RIF / NIF"          value={rif}       onChangeText={setRif}       placeholder="J-XXXXXXXXX-X"      />
+      <Field label="Teléfono"           value={telefono}  onChangeText={setTelefono}  placeholder="+58 XXX XXX XXXX"   keyboard="phone-pad" />
+      <Field label="Correo Electrónico" value={email}     onChangeText={setEmail}     placeholder="correo@empresa.com" keyboard="email-address" />
+      <Field label="Dirección"          value={direccion} onChangeText={setDireccion} placeholder="Dirección"          multiline />
+      <Field label="Notas"              value={notas}     onChangeText={setNotas}     placeholder="Notas adicionales..." multiline />
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>{existing ? 'Guardar Cambios' : 'Registrar Cliente'}</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <Text style={styles.saveButtonText}>{existing ? 'Guardar Cambios' : 'Registrar Cliente'}</Text>
+      </TouchableOpacity>
+      {existing ? (
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+          <Text style={styles.deleteButtonText}>Eliminar Cliente</Text>
         </TouchableOpacity>
-
-        {existing ? (
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.deleteButtonText}>Eliminar Cliente</Text>
-          </TouchableOpacity>
-        ) : null}
-      </ScrollView>
-    </KeyboardAvoidingView>
+      ) : null}
+    </KeyboardAwareScrollView>
   );
 }

@@ -90,6 +90,44 @@ export const updateEstadoCotizacion = async (id, estado) => {
   return null;
 };
 
+// ─── Servicios Técnicos ───────────────────────────────────────────────────────
+
+export const getServicios = async () => {
+  const raw = await AsyncStorage.getItem(KEYS.SERVICIOS);
+  return raw ? JSON.parse(raw) : [];
+};
+
+export const saveServicio = async (servicio) => {
+  const list = await getServicios();
+  if (servicio.id) {
+    const idx = list.findIndex(s => s.id === servicio.id);
+    if (idx >= 0) list[idx] = servicio;
+    else list.push(servicio);
+  } else {
+    servicio.id = Date.now().toString();
+    servicio.creadoEn = new Date().toISOString();
+    list.push(servicio);
+  }
+  await AsyncStorage.setItem(KEYS.SERVICIOS, JSON.stringify(list));
+  return servicio;
+};
+
+export const deleteServicio = async (id) => {
+  const list = await getServicios();
+  await AsyncStorage.setItem(KEYS.SERVICIOS, JSON.stringify(list.filter(s => s.id !== id)));
+};
+
+export const toggleServicioEstado = async (id) => {
+  const list = await getServicios();
+  const idx = list.findIndex(s => s.id === id);
+  if (idx >= 0) {
+    list[idx].estado = list[idx].estado === 'completado' ? 'pendiente' : 'completado';
+    await AsyncStorage.setItem(KEYS.SERVICIOS, JSON.stringify(list));
+    return list[idx];
+  }
+  return null;
+};
+
 export const registrarPago = async (id, { monedaPago, montoPago, fechaPago, observacionPago }) => {
   const list = await getCotizaciones();
   const idx = list.findIndex(c => c.id === id);

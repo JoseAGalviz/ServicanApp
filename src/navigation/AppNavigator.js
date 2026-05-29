@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeScreen from '../screens/HomeScreen';
 import ClientesScreen from '../screens/ClientesScreen';
 import CotizacionesScreen from '../screens/CotizacionesScreen';
+import AgendaScreen from '../screens/AgendaScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import Theme from '../constants/Theme';
 
@@ -14,6 +15,7 @@ const TAB_ICONS = {
   Inicio:       ['home', 'home-outline'],
   Clientes:     ['people', 'people-outline'],
   Cotizaciones: ['document-text', 'document-text-outline'],
+  Agenda:       ['calendar', 'calendar-outline'],
   Perfil:       ['person-circle', 'person-circle-outline'],
 };
 
@@ -45,6 +47,7 @@ export default function AppNavigator() {
       <Tab.Screen name="Inicio" component={HomeScreen} />
       <Tab.Screen name="Clientes" component={ClientesScreen} />
       <Tab.Screen name="Cotizaciones" component={CotizacionesScreen} />
+      <Tab.Screen name="Agenda" component={AgendaScreen} />
       <Tab.Screen name="Perfil" component={PerfilScreen} />
     </Tab.Navigator>
   );

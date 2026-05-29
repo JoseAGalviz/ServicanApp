@@ -246,6 +246,19 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
 
         {/* Editar y Eliminar */}
         <TouchableOpacity
+          style={[styles.pdfButton, { backgroundColor: Theme.colors.success, marginBottom: 8 }]}
+          onPress={() => navigation.navigate('ServicioForm', {
+            cotizacionId:     cotizacion.id,
+            cotizacionNumero: cotizacion.numero,
+            clienteId:        cotizacion.clienteId,
+            clienteNombre:    cotizacion.clienteNombre,
+          })}
+        >
+          <Ionicons name="calendar-outline" size={20} color="#fff" />
+          <Text style={styles.pdfButtonText}>Agendar Servicio Técnico</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           style={[styles.pdfButton, { backgroundColor: Theme.colors.primary, marginBottom: 8 }]}
           onPress={() => navigation.navigate('NuevaCotizacion', { cotizacion })}
         >

@@ -7,6 +7,7 @@ export const Config = {
     CLIENTES:      'servican_clientes',
     COTIZACIONES:  'servican_cotizaciones',
     COT_COUNTER:   'servican_cot_counter',
+    SERVICIOS:     'servican_servicios',
   },
   // Credenciales por defecto (cambiar antes de producción)
   DEFAULT_USER: {

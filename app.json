@@ -20,12 +20,23 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1B3A6B"
       },
-      "package": "com.servican.app"
+      "package": "com.servican.app",
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [],
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#1B3A6B",
+          "androidMode": "default"
+        }
+      ],
+      "@react-native-community/datetimepicker"
+    ],
     "extra": {
       "eas": {
         "projectId": "19d21f81-cc8a-46b7-b595-9d218bbfc41f"
