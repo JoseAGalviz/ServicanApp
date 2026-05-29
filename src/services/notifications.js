@@ -21,8 +21,12 @@ export const requestNotificationPermissions = async () => {
   return status === 'granted';
 };
 
-const buildBody = (servicio) =>
-  `${servicio.hora || ''} — ${servicio.descripcion}${servicio.clienteNombre ? ' · ' + servicio.clienteNombre : ''}`.trim();
+const buildBody = (servicio) => {
+  const desc = servicio.clienteNombre
+    ? `${servicio.descripcion} · ${servicio.clienteNombre}`
+    : servicio.descripcion;
+  return servicio.hora ? `${servicio.hora} — ${desc}` : desc;
+};
 
 export const scheduleServicioNotification = async (servicio) => {
   const [year, month, day] = servicio.fechaISO.split('-').map(Number);
