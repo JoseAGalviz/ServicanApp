@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getClientes, saveCotizacion } from '../services/storage';
 import { Config } from '../constants/Config';
 import Theme from '../constants/Theme';
@@ -75,7 +76,7 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
   const fmt    = (n) => Number(n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <KeyboardAwareScrollView
         style={styles.container}
         contentContainerStyle={[styles.scroll, { paddingBottom: 160 }]}
@@ -251,6 +252,6 @@ export default function NuevaCotizacionScreen({ route, navigation }) {
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }

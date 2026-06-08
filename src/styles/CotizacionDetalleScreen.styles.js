@@ -56,7 +56,7 @@ export default StyleSheet.create({
   modalCard: {
     backgroundColor: Theme.colors.surface, borderTopLeftRadius: Theme.radius.xl,
     borderTopRightRadius: Theme.radius.xl, padding: Theme.spacing.xl,
-    paddingBottom: 36,
+    paddingBottom: 36, maxHeight: '85%',
   },
   modalTitle: {
     fontSize: 18, fontWeight: '700', color: Theme.colors.text,

@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Alert,
-  ActivityIndicator, Modal, TextInput, Platform,
+  ActivityIndicator, Modal, TextInput, Platform, KeyboardAvoidingView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -128,8 +129,8 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
   const esPagada = cotizacion.estado === 'pagada';
 
   return (
-    <>
-      <ScrollView style={styles.container} contentContainerStyle={styles.scroll}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <ScrollView contentContainerStyle={styles.scroll}>
         {/* Header */}
         <View style={styles.headerCard}>
           <Text style={styles.docNum}>{cotizacion.numero}</Text>
@@ -165,17 +166,17 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Servicios / Productos</Text>
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, { flex: 1 }]}>Descripción</Text>
-            <Text style={[styles.tableHeaderText, { width: 40, textAlign: 'center' }]}>Cant</Text>
-            <Text style={[styles.tableHeaderText, { width: 80, textAlign: 'right' }]}>P.Unit</Text>
-            <Text style={[styles.tableHeaderText, { width: 80, textAlign: 'right' }]}>Total</Text>
+            <Text style={[styles.tableHeaderText, { flex: 3 }]}>Descripción</Text>
+            <Text style={[styles.tableHeaderText, { flex: 1, textAlign: 'center' }]}>Cant</Text>
+            <Text style={[styles.tableHeaderText, { flex: 2, textAlign: 'right' }]}>P.Unit</Text>
+            <Text style={[styles.tableHeaderText, { flex: 2, textAlign: 'right' }]}>Total</Text>
           </View>
           {(cotizacion.items || []).map((item, i) => (
             <View key={i} style={styles.itemRow}>
-              <Text style={[styles.itemDesc, { flex: 1 }]}>{item.descripcion}</Text>
-              <Text style={[styles.itemQty, { width: 40 }]}>{item.cantidad}</Text>
-              <Text style={[styles.itemPrice, { width: 80 }]}>{symbol} {fmt(item.precioUnitario)}</Text>
-              <Text style={[styles.itemTotal, { width: 80 }]}>{symbol} {fmt(item.total)}</Text>
+              <Text style={[styles.itemDesc, { flex: 3 }]}>{item.descripcion}</Text>
+              <Text style={[styles.itemQty, { flex: 1 }]}>{item.cantidad}</Text>
+              <Text style={[styles.itemPrice, { flex: 2 }]}>{symbol} {fmt(item.precioUnitario)}</Text>
+              <Text style={[styles.itemTotal, { flex: 2 }]}>{symbol} {fmt(item.total)}</Text>
             </View>
           ))}
         </View>
@@ -273,68 +274,71 @@ export default function CotizacionDetalleScreen({ route, navigation }) {
 
       {/* Modal Registrar Pago */}
       <Modal visible={pagoModal} transparent animationType="slide" onRequestClose={() => setPagoModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Registrar Pago</Text>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Registrar Pago</Text>
+              <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                <Text style={styles.modalLabel}>Moneda de Pago</Text>
+                <View style={styles.monedaRow}>
+                  {MONEDAS.map(m => (
+                    <TouchableOpacity
+                      key={m}
+                      style={[styles.monedaBtn, pagoMoneda === m && styles.monedaBtnActive]}
+                      onPress={() => setPagoMoneda(m)}
+                    >
+                      <Text style={[styles.monedaBtnText, pagoMoneda === m && styles.monedaBtnTextActive]}>{m}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
-            <Text style={styles.modalLabel}>Moneda de Pago</Text>
-            <View style={styles.monedaRow}>
-              {MONEDAS.map(m => (
-                <TouchableOpacity
-                  key={m}
-                  style={[styles.monedaBtn, pagoMoneda === m && styles.monedaBtnActive]}
-                  onPress={() => setPagoMoneda(m)}
-                >
-                  <Text style={[styles.monedaBtnText, pagoMoneda === m && styles.monedaBtnTextActive]}>{m}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                <Text style={styles.modalLabel}>Monto Recibido</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={pagoMonto}
+                  onChangeText={setPagoMonto}
+                  placeholder="0.00"
+                  placeholderTextColor={Theme.colors.light}
+                  keyboardType="decimal-pad"
+                />
 
-            <Text style={styles.modalLabel}>Monto Recibido</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={pagoMonto}
-              onChangeText={setPagoMonto}
-              placeholder="0.00"
-              placeholderTextColor={Theme.colors.light}
-              keyboardType="decimal-pad"
-            />
+                <Text style={styles.modalLabel}>Fecha de Pago</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={pagoFecha}
+                  onChangeText={setPagoFecha}
+                  placeholder="2024-01-15"
+                  placeholderTextColor={Theme.colors.light}
+                  keyboardType={Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'default'}
+                />
 
-            <Text style={styles.modalLabel}>Fecha de Pago</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={pagoFecha}
-              onChangeText={setPagoFecha}
-              placeholder="2024-01-15"
-              placeholderTextColor={Theme.colors.light}
-              keyboardType={Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'default'}
-            />
+                <Text style={styles.modalLabel}>Observación</Text>
+                <TextInput
+                  style={[styles.modalInput, styles.modalTextarea]}
+                  value={pagoObservacion}
+                  onChangeText={setPagoObservacion}
+                  placeholder="Transferencia bancaria, efectivo, etc."
+                  placeholderTextColor={Theme.colors.light}
+                  multiline
+                  numberOfLines={3}
+                />
 
-            <Text style={styles.modalLabel}>Observación</Text>
-            <TextInput
-              style={[styles.modalInput, styles.modalTextarea]}
-              value={pagoObservacion}
-              onChangeText={setPagoObservacion}
-              placeholder="Transferencia bancaria, efectivo, etc."
-              placeholderTextColor={Theme.colors.light}
-              multiline
-              numberOfLines={3}
-            />
-
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPagoModal(false)}>
-                <Text style={styles.modalCancelText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.modalConfirmBtn} onPress={handleConfirmarPago} disabled={guardandoPago}>
-                {guardandoPago
-                  ? <ActivityIndicator color="#fff" size="small" />
-                  : <Text style={styles.modalConfirmText}>Confirmar Pago</Text>
-                }
-              </TouchableOpacity>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPagoModal(false)}>
+                    <Text style={styles.modalCancelText}>Cancelar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.modalConfirmBtn} onPress={handleConfirmarPago} disabled={guardandoPago}>
+                    {guardandoPago
+                      ? <ActivityIndicator color="#fff" size="small" />
+                      : <Text style={styles.modalConfirmText}>Confirmar Pago</Text>
+                    }
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
-    </>
+    </SafeAreaView>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { saveCliente, deleteCliente } from '../services/storage';
 import styles from '../styles/ClienteFormScreen.styles';
 
@@ -56,9 +57,9 @@ export default function ClienteFormScreen({ route, navigation }) {
   };
 
   return (
+    <SafeAreaView style={styles.container} edges={['bottom']}>
     <KeyboardAwareScrollView
-      style={styles.container}
-      contentContainerStyle={[styles.scroll, { paddingBottom: 160 }]}
+      contentContainerStyle={[styles.scroll, { paddingBottom: 40 }]}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid
       extraScrollHeight={24}
@@ -80,5 +81,6 @@ export default function ClienteFormScreen({ route, navigation }) {
         </TouchableOpacity>
       ) : null}
     </KeyboardAwareScrollView>
+    </SafeAreaView>
   );
 }

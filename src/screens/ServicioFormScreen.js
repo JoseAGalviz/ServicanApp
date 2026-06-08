@@ -8,6 +8,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Ionicons } from '@expo/vector-icons';
 import { getCotizaciones, saveServicio, deleteServicio } from '../services/storage';
 import { scheduleServicioNotification, cancelServicioNotification, requestNotificationPermissions } from '../services/notifications';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Theme from '../constants/Theme';
 import styles from '../styles/ServicioFormScreen.styles';
 
@@ -127,8 +128,8 @@ export default function ServicioFormScreen({ route, navigation }) {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: Theme.colors.background }} edges={['bottom']}>
     <KeyboardAwareScrollView
-      style={{ flex: 1, backgroundColor: Theme.colors.background }}
       contentContainerStyle={styles.scroll}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid
@@ -278,5 +279,6 @@ export default function ServicioFormScreen({ route, navigation }) {
         </Pressable>
       </Modal>
     </KeyboardAwareScrollView>
+    </SafeAreaView>
   );
 }

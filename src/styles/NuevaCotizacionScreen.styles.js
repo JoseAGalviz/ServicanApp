@@ -150,6 +150,7 @@ export default StyleSheet.create({
     borderTopRightRadius: 20,
     padding: Theme.spacing.xl,
     paddingBottom: 36,
+    maxHeight: '85%',
   },
   modalTitle: { fontSize: 16, fontWeight: '700', color: Theme.colors.text, marginBottom: Theme.spacing.lg },
   modalButtons: { flexDirection: 'row', gap: Theme.spacing.md, marginTop: Theme.spacing.lg },
